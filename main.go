@@ -1,20 +1,38 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/urfave/cli"
 	"os"
-	"fmt"
-	"sort"
 )
 
-type ByName []os.FileInfo
-func (a ByName) Len() int      { return len(a) }
-func (a ByName) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-func (a ByName) Less(i, j int) bool { return a[i].Name() < a[j].Name() }
+type meta struct {
+	IP   string `json:"ip"`
+	PORT string `json:"port"`
+}
 
+type Message struct {
+	Interaction string `json:"interaction"`
+	Name        string `json:"name"`
+	Data        []byte `json:"data"`
+}
+
+var initData = meta{"", ""}
 
 func main() {
+
 	app := cli.NewApp()
+
+	initFile, err := os.Open("init.json")
+	if err != nil {
+		fmt.Fprintln(os.Stdout, "Runing Cute init in order to run the program")
+		config(nil)
+	}
+
+	json.NewDecoder(initFile).Decode(&initData)
+
+	initFile.Close()
 
 	app.Name = "Cute"
 	app.Usage = "A simple cloud storage kind of stuff"
@@ -27,50 +45,37 @@ func main() {
 		},
 	}
 
-	app.Action = func(c *cli.Context) error {
-		if c.Bool("lang") == false {
-			fmt.Println("Nu este flag")
-		} else {
-			fmt.Println("da")
-		}
-		return nil
-	}
-
 	app.Commands = []cli.Command{
 		{
-			Name:  "push",
-			Usage: "Pushes a file",
-			Action: func(c *cli.Context) error {
-				fmt.Println("Pushed the file")
-				return nil
-			},
+			Name:   "push",
+			Usage:  "Pushes a initFile to the server",
+			Action: push,
 		},
 
 		{
-			Name:  "pull",
-			Usage: "Pulls a file",
-			Action: func(c *cli.Context) error {
-				fmt.Println("Pulled the file")
-				return nil
-			},
+			Name:   "pull",
+			Usage:  "Pulls a initFile from the server",
+			Action: pull,
 		},
 
 		{
-			Name:  "ls",
-			Usage: "Lists all the files",
-			Action: func(c *cli.Context) error {
-				ls, _ := os.Open("./")
-				files, _ := ls.Readdir(100)
+			Name:   "check",
+			Usage:  "Checks a initFile and tells you if you have the latest version",
+			Action: check,
+		},
 
-				sort.Sort(ByName(files))
-
-				for _, file := range files {
-					fmt.Printf("Name: %v\tSize: %v\n", file.Name(), file.Size())
-				}
-				return nil
-			},
+		{
+			Name:   "ls",
+			Usage:  "Lists all the files in the server",
+			Action: ls,
 		},
 	}
 
 	app.Run(os.Args)
 }
+
+type ByName []os.FileInfo
+
+func (a ByName) Len() int           { return len(a) }
+func (a ByName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByName) Less(i, j int) bool { return a[i].Name() < a[j].Name() }
