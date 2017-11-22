@@ -1,23 +1,76 @@
 package main
 
 import (
-	"fmt"
-	"io/ioutil"
+	"github.com/urfave/cli"
 	"os"
+	"fmt"
+	"sort"
 )
 
+type ByName []os.FileInfo
+func (a ByName) Len() int      { return len(a) }
+func (a ByName) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByName) Less(i, j int) bool { return a[i].Name() < a[j].Name() }
+
+
 func main() {
-	file, err := os.Open("wall10.jpg")
-	if err != nil {
-		fmt.Println(err)
-		return
+	app := cli.NewApp()
+
+	app.Name = "Cute"
+	app.Usage = "A simple cloud storage kind of stuff"
+	app.HideVersion = true
+
+	app.Flags = []cli.Flag{
+		cli.BoolFlag{
+			Name:  "lang, l",
+			Usage: "language for the greeting",
+		},
 	}
 
-	defer file.Close()
-	byt, _ := ioutil.ReadAll(file)
+	app.Action = func(c *cli.Context) error {
+		if c.Bool("lang") == false {
+			fmt.Println("Nu este flag")
+		} else {
+			fmt.Println("da")
+		}
+		return nil
+	}
 
-	clone, _ := os.Create("Groaznic.jpg")
-	clone.Write(byt)
+	app.Commands = []cli.Command{
+		{
+			Name:  "push",
+			Usage: "Pushes a file",
+			Action: func(c *cli.Context) error {
+				fmt.Println("Pushed the file")
+				return nil
+			},
+		},
 
-	defer clone.Close()
+		{
+			Name:  "pull",
+			Usage: "Pulls a file",
+			Action: func(c *cli.Context) error {
+				fmt.Println("Pulled the file")
+				return nil
+			},
+		},
+
+		{
+			Name:  "ls",
+			Usage: "Lists all the files",
+			Action: func(c *cli.Context) error {
+				ls, _ := os.Open("./")
+				files, _ := ls.Readdir(100)
+
+				sort.Sort(ByName(files))
+
+				for _, file := range files {
+					fmt.Printf("Name: %v\tSize: %v\n", file.Name(), file.Size())
+				}
+				return nil
+			},
+		},
+	}
+
+	app.Run(os.Args)
 }
