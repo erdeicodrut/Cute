@@ -60,7 +60,7 @@ func pull(c *cli.Context) {
 
 	json.NewDecoder(receivedData).Decode(&data)
 
-	exists = checkFile(data.Name) // see how
+	exists = checkFile(data.Name)
 
 	var file *os.File
 	if !exists {
@@ -76,5 +76,10 @@ func pull(c *cli.Context) {
 }
 
 func checkFile(filename string) bool {
+	file, err := os.Open(filename)
+	if err != nil {
+		return false
+	}
+	file.Close()
 	return true
 }
