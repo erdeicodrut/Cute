@@ -15,13 +15,13 @@ func push(c *cli.Context) error {
 
 	file, err := os.Open(fileName)
 	if err != nil {
-		fmt.Fprintf(os.Stdout, "No such file as %v", err)
+		fmt.Fprintf(os.Stdout, "No such file as %v\n", err)
 	}
 	defer file.Close()
 
-	conn, err := net.Dial("tcp", initData.IP+":"+initData.PORT)
+	conn, err := net.Dial("tcp", configData.IP+":"+configData.PORT)
 	if err != nil {
-		fmt.Fprintf(os.Stdout, "Failed to connect to "+initData.IP+":"+initData.PORT+" because %v", err)
+		fmt.Fprintf(os.Stdout, "Failed to connect to "+configData.IP+":"+configData.PORT+" because %v\n", err)
 	}
 
 	fileBytes, err := ioutil.ReadAll(file)
