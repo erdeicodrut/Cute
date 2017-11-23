@@ -13,15 +13,21 @@ func push(c *cli.Context) error {
 
 	fileName := c.Args()[0]
 
+	pushF(fileName)
+
+	return nil
+}
+
+func pushF(fileName string) {
 	file, err := os.Open(fileName)
 	if err != nil {
-		fmt.Fprintf(os.Stdout, "No such file as %v\n", err)
+		fmt.Fprintf(os.Stdout, "No such file as %v", err)
 	}
 	defer file.Close()
 
-	conn, err := net.Dial("tcp", configData.IP+":"+configData.PORT)
+	conn, err := net.Dial("tcp", initData.IP+":"+initData.PORT)
 	if err != nil {
-		fmt.Fprintf(os.Stdout, "Failed to connect to "+configData.IP+":"+configData.PORT+" because %v\n", err)
+		fmt.Fprintf(os.Stdout, "Failed to connect to %v:%v because %v", initData.IP, initData.PORT, err)
 	}
 
 	fileBytes, err := ioutil.ReadAll(file)
@@ -35,5 +41,4 @@ func push(c *cli.Context) error {
 	json.NewEncoder(conn).Encode(toSend)
 
 	fmt.Println("Pushed the file")
-	return nil
 }
