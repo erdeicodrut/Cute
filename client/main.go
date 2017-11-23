@@ -36,6 +36,12 @@ func main() {
 
 	app.Commands = []cli.Command {
 		{
+			Name:   "config",
+			Usage:  "Configure Cute",
+			Action: config,
+		},
+
+		{
 			Name:   "push",
 			Usage:  "Pushes a file to the server",
 			Action: push,
