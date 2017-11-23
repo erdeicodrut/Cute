@@ -14,9 +14,9 @@ import (
 
 func pull(c *cli.Context) {
 
-	conn, err := net.Dial("tcp", initData.IP+":"+initData.PORT)
+	conn, err := net.Dial("tcp", configData.IP+":"+configData.PORT)
 	if err != nil {
-		fmt.Fprintf(os.Stdout, "Failed to connect to %v:%v because %v", initData.IP, initData.PORT, err)
+		fmt.Fprintf(os.Stdout, "Failed to connect to %v:%v because %v", configData.IP, configData.PORT, err)
 	}
 
 	name := c.Args()[0]
