@@ -27,8 +27,8 @@ func config(_ *cli.Context) {
 	fmt.Print("PORT: ")
 	PORT, _ := reader.ReadString('\n')
 
-	IP = strings.Trim(IP, "\n" + " ")
-	PORT = strings.Trim(PORT, "\n" + " ")
+	IP = strings.Trim(IP, "\n"+" ")
+	PORT = strings.Trim(PORT, "\n"+" ")
 
 	configData = Config{IP, PORT}
 

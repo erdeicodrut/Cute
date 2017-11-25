@@ -34,7 +34,7 @@ func main() {
 	app.Usage = "A simple cloud storage kind of stuff"
 	app.HideVersion = true
 
-	app.Commands = []cli.Command {
+	app.Commands = []cli.Command{
 		{
 			Name:   "config",
 			Usage:  "Configure Cute",

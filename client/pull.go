@@ -18,6 +18,7 @@ func pull(c *cli.Context) {
 	if err != nil {
 		fmt.Fprintf(os.Stdout, "Failed to connect to %v:%v because %v", configData.IP, configData.PORT, err)
 	}
+	defer conn.Close()
 
 	name := c.Args()[0]
 
@@ -31,7 +32,10 @@ func pull(c *cli.Context) {
 
 	time.Sleep(time.Second / 2)
 
-	exists := check(name) // see how
+	exists, err := check(name) // see how
+	if err != nil {
+		panic(err)
+	}
 
 	if !exists {
 		fmt.Fprintf(os.Stdout, "File %v doesn't exist\n", name)

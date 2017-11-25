@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/urfave/cli"
+	"math"
 	"os"
 	"sort"
-	"math"
 )
 
 func ls(c *cli.Context) error {
@@ -19,7 +19,7 @@ func ls(c *cli.Context) error {
 			subDir, _ := os.Open(file.Name())
 			names, _ := subDir.Readdirnames(1000)
 			nItems := len(names)
-			
+
 			fmt.Printf("\t%v items\t\t\t\t%v\n", nItems, file.Name())
 
 		} else {
