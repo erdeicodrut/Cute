@@ -40,5 +40,5 @@ func pushF(fileName string) {
 
 	json.NewEncoder(conn).Encode(toSend)
 
-	fmt.Println("Pushed the file")
+	fmt.Printf("Pushed file '%v'\n", file.Name())
 }

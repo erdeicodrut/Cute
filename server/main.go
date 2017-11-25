@@ -11,7 +11,7 @@ import (
 )
 
 type Config struct {
-	PORT string `json:"port"`
+	PORT         string `json:"port"`
 	STORAGE_PATH string `json:"storage_path"`
 }
 
@@ -19,18 +19,17 @@ type Message struct {
 	Interaction string `json:"interaction"`
 	Name        string `json:"name"`
 	Data        []byte `json:"data"`
+	Error		string `json:"error"`
 }
 
 var configData = Config{"", ""}
 
 func config(c *cli.Context) {
-	file, err := os.Open("config.json")
+	file, err := os.Create("config.json")
 	if err != nil {
-		file, err = os.Create("config.json")
-		if err != nil {
-			fmt.Printf("Couldn't create 'config.json' file because %v\n", err)
-		}
+		fmt.Printf("Couldn't create 'config.json' file because %v\n", err)
 	}
+
 	defer file.Close()
 
 	reader := bufio.NewReader(os.Stdin)
@@ -44,9 +43,19 @@ func config(c *cli.Context) {
 	PORT = strings.Trim(PORT, "\n"+" ")
 	STORAGE_PATH = strings.Trim(STORAGE_PATH, "\n"+" ")
 
+	// Append '/' at the end of path if there isn't one
+	if STORAGE_PATH[len(STORAGE_PATH)-1] != '/' {
+		STORAGE_PATH += "/"
+	}
+
+	// Create the directories
+	os.MkdirAll(STORAGE_PATH, 0755)
+
 	configData = Config{PORT, STORAGE_PATH}
 
 	json.NewEncoder(file).Encode(configData)
+
+	fmt.Println(file)
 }
 
 func main() {
@@ -73,14 +82,18 @@ func main() {
 	}
 
 	app.Action = func(c *cli.Context) error {
-		ln, err := net.Listen("tcp", ":" + configData.PORT)
+		ln, err := net.Listen("tcp", ":"+configData.PORT)
 		if err != nil {
-			// handle error
+			fmt.Println("Invalid port, please reconfigure.")
+			return nil
 		}
+		defer ln.Close()
+
 		for {
 			conn, err := ln.Accept()
 			if err != nil {
-				// handle error
+				fmt.Println("Connection refused.")
+				continue
 			}
 			go handleConnection(conn)
 		}
@@ -95,8 +108,8 @@ func handleConnection(conn net.Conn) {
 
 	switch message.Interaction {
 	case "push":
-		push(message)
+		receive(message)
 	case "pull":
-		pull(message)
+		send(message, conn)
 	}
 }

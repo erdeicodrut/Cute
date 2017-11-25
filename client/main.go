@@ -15,6 +15,7 @@ type Message struct {
 	Interaction string `json:"interaction"`
 	Name        string `json:"name"`
 	Data        []byte `json:"data"`
+	Error		string `json:"error"`
 }
 
 var configData = Config{"", ""}
