@@ -19,7 +19,7 @@ type Message struct {
 	Interaction string `json:"interaction"`
 	Name        string `json:"name"`
 	Data        []byte `json:"data"`
-	Error		string `json:"error"`
+	Error       string `json:"error"`
 }
 
 var configData = Config{"", ""}
@@ -111,5 +111,13 @@ func handleConnection(conn net.Conn) {
 		receive(message)
 	case "pull":
 		send(message, conn)
+	case "ls":
+		ls(conn)
 	}
 }
+
+type ByName []os.FileInfo
+
+func (a ByName) Len() int           { return len(a) }
+func (a ByName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByName) Less(i, j int) bool { return a[i].Name() < a[j].Name() }
