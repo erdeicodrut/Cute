@@ -12,7 +12,7 @@ func receive(message Message) {
 	message.Name = strings.Replace(message.Name, "../", "", -1)
 	fmt.Println(message.Name)
 
-	os.MkdirAll(message.Name[:strings.LastIndex(message.Name, "/")], 0755)
+	os.MkdirAll(configData.STORAGE_PATH+message.Name[:strings.LastIndex(message.Name, "/")], 0755)
 
 	file, err := os.Create(configData.STORAGE_PATH + message.Name)
 	if err != nil {
