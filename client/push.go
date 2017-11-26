@@ -9,19 +9,17 @@ import (
 	"os"
 )
 
-func push(c *cli.Context) error {
-
-	fileName := c.Args()[0]
-
-	pushF(fileName)
-
-	return nil
+// Sends the file to the server
+// The server will hopefully store it
+func push(c *cli.Context) {
+	pushF(c.Args()[0])
 }
 
 func pushF(fileName string) {
 	file, err := os.Open(fileName)
 	if err != nil {
 		fmt.Fprintf(os.Stdout, "No such file as %v", err)
+		return
 	}
 	defer file.Close()
 

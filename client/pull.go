@@ -8,10 +8,12 @@ import (
 	"os"
 )
 
+// Get the file you specify from the server
 func pull(c *cli.Context) {
 	conn, err := net.Dial("tcp", configData.IP+":"+configData.PORT)
 	if err != nil {
 		fmt.Fprintf(os.Stdout, "Failed to connect to %v:%v because %v", configData.IP, configData.PORT, err)
+		return
 	}
 	defer conn.Close()
 
@@ -25,7 +27,7 @@ func pull(c *cli.Context) {
 
 	json.NewEncoder(conn).Encode(toSend)
 
-	////////////
+	// I still don't know if the connection is blocking or not. I would consider a delay to work around this
 
 	var message Message
 	json.NewDecoder(conn).Decode(&message)
@@ -38,6 +40,7 @@ func pull(c *cli.Context) {
 	file, err := os.Create(message.Name)
 	if err != nil {
 		fmt.Printf("Couldn't create '%v' file because '%v'\n", message.Name, err)
+		return
 	}
 	defer file.Close()
 

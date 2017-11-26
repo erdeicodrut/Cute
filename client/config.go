@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+// Configure the connection
+// The configuration is stored in a json file which will be accessed at every run of the server
 func config(_ *cli.Context) {
 	file, err := os.Open("init.json")
 	if err != nil {

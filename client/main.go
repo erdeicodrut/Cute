@@ -15,7 +15,7 @@ type Message struct {
 	Interaction string `json:"interaction"`
 	Name        string `json:"name"`
 	Data        []byte `json:"data"`
-	Error		string `json:"error"`
+	Error       string `json:"error"`
 }
 
 var configData = Config{"", ""}
@@ -57,7 +57,7 @@ func main() {
 		{
 			Name:   "check",
 			Usage:  "Checks a file and tells you if you have the latest version",
-			Action: check,
+			Action: checkIT,
 		},
 
 		{

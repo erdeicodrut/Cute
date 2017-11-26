@@ -1,12 +1,12 @@
 package main
 
 import (
-	"net"
-	"encoding/json"
-	"os"
-	"github.com/urfave/cli"
-	"fmt"
 	"bufio"
+	"encoding/json"
+	"fmt"
+	"github.com/urfave/cli"
+	"net"
+	"os"
 	"strings"
 )
 
@@ -23,40 +23,6 @@ type Message struct {
 }
 
 var configData = Config{"", ""}
-
-func config(c *cli.Context) {
-	file, err := os.Create("config.json")
-	if err != nil {
-		fmt.Printf("Couldn't create 'config.json' file because %v\n", err)
-	}
-
-	defer file.Close()
-
-	reader := bufio.NewReader(os.Stdin)
-
-	fmt.Print("PORT: ")
-	PORT, _ := reader.ReadString('\n')
-
-	fmt.Print("STORAGE_PATH: ")
-	STORAGE_PATH, _ := reader.ReadString('\n')
-
-	PORT = strings.Trim(PORT, "\n"+" ")
-	STORAGE_PATH = strings.Trim(STORAGE_PATH, "\n"+" ")
-
-	// Append '/' at the end of path if there isn't one
-	if STORAGE_PATH[len(STORAGE_PATH)-1] != '/' {
-		STORAGE_PATH += "/"
-	}
-
-	// Create the directories
-	os.MkdirAll(STORAGE_PATH, 0755)
-
-	configData = Config{PORT, STORAGE_PATH}
-
-	json.NewEncoder(file).Encode(configData)
-
-	fmt.Println(file)
-}
 
 func main() {
 	app := cli.NewApp()
@@ -113,10 +79,46 @@ func handleConnection(conn net.Conn) {
 		send(message, conn)
 	case "ls":
 		ls(conn)
+	case "check":
+		check(message.Name, conn)
 	}
 }
 
 type ByName []os.FileInfo
+
+func config(c *cli.Context) {
+	file, err := os.Create("config.json")
+	if err != nil {
+		fmt.Printf("Couldn't create 'config.json' file because %v\n", err)
+	}
+
+	defer file.Close()
+
+	reader := bufio.NewReader(os.Stdin)
+
+	fmt.Print("PORT: ")
+	PORT, _ := reader.ReadString('\n')
+
+	fmt.Print("STORAGE_PATH: ")
+	STORAGE_PATH, _ := reader.ReadString('\n')
+
+	PORT = strings.Trim(PORT, "\n"+" ")
+	STORAGE_PATH = strings.Trim(STORAGE_PATH, "\n"+" ")
+
+	// Append '/' at the end of path if there isn't one
+	if STORAGE_PATH[len(STORAGE_PATH)-1] != '/' {
+		STORAGE_PATH += "/"
+	}
+
+	// Create the directories
+	os.MkdirAll(STORAGE_PATH, 0755)
+
+	configData = Config{PORT, STORAGE_PATH}
+
+	json.NewEncoder(file).Encode(configData)
+
+	fmt.Println(file)
+}
 
 func (a ByName) Len() int           { return len(a) }
 func (a ByName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }

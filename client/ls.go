@@ -1,14 +1,15 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/urfave/cli"
-	"os"
 	"net"
-	"encoding/json"
+	"os"
 )
 
-func ls(c *cli.Context) {
+// ls comes form list, the ls unix command, equivalent of dir in windows cmd
+func ls(_ *cli.Context) {
 	conn, err := net.Dial("tcp", configData.IP+":"+configData.PORT)
 	if err != nil {
 		fmt.Fprintf(os.Stdout, "Failed to connect to %v:%v because %v", configData.IP, configData.PORT, err)
@@ -20,8 +21,6 @@ func ls(c *cli.Context) {
 	}
 
 	json.NewEncoder(conn).Encode(toSend)
-
-	////////////
 
 	var message Message
 	json.NewDecoder(conn).Decode(&message)

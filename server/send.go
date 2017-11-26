@@ -1,20 +1,20 @@
 package main
 
 import (
-	"net"
 	"encoding/json"
-	"os"
 	"fmt"
 	"io/ioutil"
+	"net"
+	"os"
 )
 
+// Sends the a file through the connection
+// Hopefully the file the client has required
 func send(message Message, conn net.Conn) {
 	file, err := os.Open(configData.STORAGE_PATH + message.Name)
 	if err != nil {
 		errorMessage := fmt.Sprintf("File '%v' doesn't exist.\n", message.Name)
-		fmt.Print(errorMessage)
-		json.NewEncoder(conn).Encode(Message{
-			Error: errorMessage})
+		json.NewEncoder(conn).Encode(Message{Error: errorMessage})
 		return
 	}
 	file.Close()
