@@ -28,31 +28,42 @@ func pull(c *cli.Context) {
 
 	json.NewEncoder(conn).Encode(toSend)
 
-	// I still don't know if the connection is blocking or not. I would consider a delay to work around this
-
 	for {
+
 		var message Message
-		json.NewDecoder(conn).Decode(&message)
-
-		os.MkdirAll(message.Name[:strings.LastIndex(message.Name, "/")], 0755)
-
-		if message.Error != "" {
-			fmt.Print(message.Error)
-			return
+		err := json.NewDecoder(conn).Decode(&message)
+		if err != nil {
+			fmt.Println(err)
 		}
+
 		if message.Interaction == "Done" {
 			fmt.Println("Done")
+			break
+		}
+
+		if slash := strings.LastIndex(message.Name, "/"); slash > 0 {
+			err := os.MkdirAll(message.Name[:slash], 0755)
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
 		}
 
 		file, err := os.Create(message.Name)
 		if err != nil {
 			fmt.Printf("Couldn't create '%v' file because '%v'\n", message.Name, err)
-			return
+			file, err = os.Open(message.Name)
+			if err != nil {
+				fmt.Println(err)
+			}
+			continue
 		}
 
 		file.Write(message.Data)
+		file.Close()
 
 		fmt.Printf("Pulled file '%v'\n", message.Name)
-		file.Close()
+		json.NewEncoder(conn).Encode(Message{Interaction: "thx"})
+
 	}
 }

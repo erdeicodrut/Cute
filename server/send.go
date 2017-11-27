@@ -17,11 +17,12 @@ func send(message Message, conn net.Conn) {
 		json.NewEncoder(conn).Encode(Message{Error: errorMessage})
 		return
 	}
-	file.Close()
+	defer file.Close()
 
 	pushAll(configData.STORAGE_PATH+message.Name, conn)
 
 	json.NewEncoder(conn).Encode(Message{Interaction: "Done"})
+	fmt.Println("DONE")
 
 	fmt.Printf("Sent file '%v'\n", message.Name)
 }
@@ -39,7 +40,19 @@ func pushF(file *os.File, conn net.Conn) {
 		Data:        fileBytes,
 	}
 
+	fmt.Printf("Struct: %v", toSend.Name)
+
 	json.NewEncoder(conn).Encode(toSend)
+
+	var thx Message
+	err = json.NewDecoder(conn).Decode(&thx)
+	if err != nil {
+		fmt.Printf("err: %v", err)
+	}
+
+	if thx.Interaction == "thx" {
+		fmt.Println("THX")
+	}
 
 	fmt.Printf("Pushed file '%v'\n", file.Name())
 }
