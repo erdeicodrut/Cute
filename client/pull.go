@@ -6,6 +6,7 @@ import (
 	"github.com/urfave/cli"
 	"net"
 	"os"
+	"strings"
 )
 
 // Get the file you specify from the server
@@ -29,22 +30,29 @@ func pull(c *cli.Context) {
 
 	// I still don't know if the connection is blocking or not. I would consider a delay to work around this
 
-	var message Message
-	json.NewDecoder(conn).Decode(&message)
+	for {
+		var message Message
+		json.NewDecoder(conn).Decode(&message)
 
-	if message.Error != "" {
-		fmt.Print(message.Error)
-		return
+		os.MkdirAll(message.Name[:strings.LastIndex(message.Name, "/")], 0755)
+
+		if message.Error != "" {
+			fmt.Print(message.Error)
+			return
+		}
+		if message.Interaction == "Done" {
+			fmt.Println("Done")
+		}
+
+		file, err := os.Create(message.Name)
+		if err != nil {
+			fmt.Printf("Couldn't create '%v' file because '%v'\n", message.Name, err)
+			return
+		}
+
+		file.Write(message.Data)
+
+		fmt.Printf("Pulled file '%v'\n", message.Name)
+		file.Close()
 	}
-
-	file, err := os.Create(message.Name)
-	if err != nil {
-		fmt.Printf("Couldn't create '%v' file because '%v'\n", message.Name, err)
-		return
-	}
-	defer file.Close()
-
-	file.Write(message.Data)
-
-	fmt.Printf("Pulled file '%v'\n", message.Name)
 }

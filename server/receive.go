@@ -10,6 +10,7 @@ func receive(message Message) {
 	os.MkdirAll(configData.STORAGE_PATH, 0755)
 
 	message.Name = strings.Replace(message.Name, "../", "", -1)
+
 	fmt.Println(message.Name)
 
 	os.MkdirAll(configData.STORAGE_PATH+message.Name[:strings.LastIndex(message.Name, "/")], 0755)

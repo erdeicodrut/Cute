@@ -19,12 +19,50 @@ func send(message Message, conn net.Conn) {
 	}
 	file.Close()
 
-	bytes, _ := ioutil.ReadFile(configData.STORAGE_PATH + message.Name)
+	pushAll(configData.STORAGE_PATH+message.Name, conn)
 
-	json.NewEncoder(conn).Encode(Message{
-		Name: message.Name,
-		Data: bytes,
-	})
+	json.NewEncoder(conn).Encode(Message{Interaction: "Done"})
 
 	fmt.Printf("Sent file '%v'\n", message.Name)
+}
+
+func pushF(file *os.File, conn net.Conn) {
+
+	fileBytes, err := ioutil.ReadAll(file)
+	if err != nil {
+		fmt.Fprintf(conn, "Failed to read file %v, because %v\n", file.Name(), err)
+	}
+
+	toSend := Message{
+		Interaction: "push",
+		Name:        file.Name(),
+		Data:        fileBytes,
+	}
+
+	json.NewEncoder(conn).Encode(toSend)
+
+	fmt.Printf("Pushed file '%v'\n", file.Name())
+}
+
+func pushAll(filename string, conn net.Conn) {
+	fileTemp, err := os.Open(filename)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer fileTemp.Close()
+	file, _ := fileTemp.Stat()
+
+	if !file.IsDir() {
+		pushF(fileTemp, conn)
+		return
+	}
+
+	files, _ := fileTemp.Readdir(-1)
+
+	for _, tempFile := range files {
+		fmt.Println(tempFile.Name())
+		pushAll(filename+"/"+tempFile.Name(), conn)
+	}
+
 }
