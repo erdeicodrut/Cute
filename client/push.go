@@ -3,16 +3,19 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/urfave/cli"
 	"io/ioutil"
 	"net"
 	"os"
+	"github.com/abiosoft/ishell"
 )
 
 // Sends the file to the server
-// The server will hopefully store it
-func push(c *cli.Context) {
-	pushAll(c.Args()[0])
+func push(c *ishell.Context) {
+	if len(c.Args) == 0 {
+		c.Println("Usage: push FILE [FILE]...")
+		return
+	}
+	pushAll(c.Args[0])
 }
 
 func pushAll(filename string) {
@@ -25,7 +28,7 @@ func pushAll(filename string) {
 	file, _ := fileTemp.Stat()
 
 	if !file.IsDir() {
-		pushF(fileTemp)
+		pushFile(fileTemp)
 		return
 	}
 
@@ -38,7 +41,7 @@ func pushAll(filename string) {
 
 }
 
-func pushF(file *os.File) {
+func pushFile(file *os.File) {
 	conn, err := net.Dial("tcp", configData.IP+":"+configData.PORT)
 	if err != nil {
 		fmt.Fprintf(os.Stdout, "Failed to connect to %v:%v because %v", configData.IP, configData.PORT, err)

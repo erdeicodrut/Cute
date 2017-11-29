@@ -23,7 +23,7 @@ func ls(conn net.Conn) {
 			names, _ := subDir.Readdirnames(1000)
 			nItems := len(names)
 
-			ls += fmt.Sprintf("\t%v items\t\t\t\t%v\n", nItems, file.Name())
+			ls += fmt.Sprintf("\t%v items\t\t%v\n", nItems, file.Name())
 
 		} else {
 			var size float64
@@ -43,7 +43,7 @@ func ls(conn net.Conn) {
 				unit = "B"
 			}
 
-			ls += fmt.Sprintf("%.2f%v\t\t%v\n", size, unit, file.Name())
+			ls += fmt.Sprintf("\t%.2f%v\t\t%v\n", size, unit, file.Name())
 		}
 	}
 

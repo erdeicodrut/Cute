@@ -3,22 +3,26 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/urfave/cli"
 	"net"
 	"os"
 	"strings"
+	"github.com/abiosoft/ishell"
 )
 
 // Get the file you specify from the server
-func pull(c *cli.Context) {
+func pull(c *ishell.Context) {
+	if len(c.Args) == 0 {
+		fmt.Println("Usage: pull FILE [FILE]...")
+		return
+	}
+	name := c.Args[0]
+
 	conn, err := net.Dial("tcp", configData.IP+":"+configData.PORT)
 	if err != nil {
 		fmt.Fprintf(os.Stdout, "Failed to connect to %v:%v because %v", configData.IP, configData.PORT, err)
 		return
 	}
 	defer conn.Close()
-
-	name := c.Args()[0]
 
 	toSend := Message{
 		Interaction: "pull",
