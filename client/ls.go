@@ -3,13 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/urfave/cli"
 	"net"
 	"os"
-	"github.com/abiosoft/ishell"
 )
 
 // ls comes form list, the ls unix command, equivalent of dir in windows cmd
-func ls(_ *ishell.Context) {
+func ls(_ *cli.Context) {
 	conn, err := net.Dial("tcp", configData.IP+":"+configData.PORT)
 	if err != nil {
 		fmt.Fprintf(os.Stdout, "Failed to connect to %v:%v because %v", configData.IP, configData.PORT, err)

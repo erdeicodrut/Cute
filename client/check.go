@@ -5,34 +5,29 @@ import (
 	"crypto/md5"
 	"encoding/json"
 	"fmt"
+	"github.com/urfave/cli"
 	"io/ioutil"
 	"net"
 	"os"
-	"github.com/abiosoft/ishell"
 )
 
 // Checks if the files have the same hash in order to determine if they are the same
-func check(c *ishell.Context) {
-	if len(c.Args) == 0 {
-		fmt.Println("Usage: check FILE")
-		return
-	}
-	filename := c.Args[0]
-
-	same, err := checkFile(filename)
+func checkIT(c *cli.Context) {
+	same, err := check(c.Args()[0])
 	if err != nil {
 		panic(err)
 	}
 
 	if same {
-		fmt.Fprintf(os.Stdout, "There is no change needed to be made to %v", filename)
-	} else {
-		fmt.Fprintf(os.Stdout, "There is a newer version of %v.\n Run Cute pull \"%v\" if you wish to update the file.\n", filename, filename)
+		fmt.Fprintf(os.Stdout, "There is no change needed to be made to %v", c.Args()[0])
+		return
 	}
+
+	fmt.Fprintf(os.Stdout, "There is a newer version of %v.\n Run Cute pull \"%v\" if you wish to update the file.\n", c.Args()[0], c.Args()[0])
 }
 
 // this is the actual function that does the checking
-func checkFile(fileName string) (bool, error) {
+func check(fileName string) (bool, error) {
 	conn, err := net.Dial("tcp", configData.IP+":"+configData.PORT)
 	if err != nil {
 		fmt.Fprintf(os.Stdout, "Failed to connect to %v:%v because %v", configData.IP, configData.PORT, err)
@@ -49,7 +44,7 @@ func checkFile(fileName string) (bool, error) {
 
 	data := Message{
 		Name:        fileName,
-		Interaction: "checkFile",
+		Interaction: "check",
 	}
 
 	json.NewEncoder(conn).Encode(data)

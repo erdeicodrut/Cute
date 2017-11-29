@@ -2,8 +2,8 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/urfave/cli"
 	"os"
-	"github.com/abiosoft/ishell"
 )
 
 type Config struct {
@@ -21,46 +21,51 @@ type Message struct {
 var configData = Config{"", ""}
 
 func main() {
-	shell := ishell.New()
-	shell.Println("Welcome to Cute")
+	app := cli.NewApp()
 
-	configFile, err := os.Open("config.json")
+	initFile, err := os.Open("init.json")
 	if err != nil {
 		config(nil)
 	}
 
-	json.NewDecoder(configFile).Decode(&configData)
-	configFile.Close()
+	json.NewDecoder(initFile).Decode(&configData)
+	initFile.Close()
 
-	shell.AddCmd(&ishell.Cmd{
-		Name: "config",
-		Help: "configure Cute",
-		Func: config,
-	})
+	app.Name = "Cute"
+	app.Usage = "A simple cloud storage kind of stuff"
+	app.HideVersion = true
 
-	shell.AddCmd(&ishell.Cmd{
-		Name: "ls",
-		Help: "lists all the files on the server",
-		Func: ls,
-	})
+	app.Commands = []cli.Command{
+		{
+			Name:   "config",
+			Usage:  "Configure Cute",
+			Action: config,
+		},
 
-	shell.AddCmd(&ishell.Cmd{
-		Name: "push",
-		Help: "pushes files to the server",
-		Func: push,
-	})
+		{
+			Name:   "push",
+			Usage:  "Pushes a file to the server",
+			Action: push,
+		},
 
-	shell.AddCmd(&ishell.Cmd{
-		Name: "pull",
-		Help: "pulls files from the server",
-		Func: pull,
-	})
+		{
+			Name:   "pull",
+			Usage:  "Pulls a file from the server",
+			Action: pull,
+		},
 
-	shell.AddCmd(&ishell.Cmd{
-		Name: "check",
-		Help: "checks a file and tells you if you have the latest version",
-		Func: check,
-	})
+		{
+			Name:   "check",
+			Usage:  "Checks a file and tells you if you have the latest version",
+			Action: checkIT,
+		},
 
-	shell.Run()
+		{
+			Name:   "ls",
+			Usage:  "Lists all the files in the server",
+			Action: ls,
+		},
+	}
+
+	app.Run(os.Args)
 }
