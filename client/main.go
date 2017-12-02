@@ -16,7 +16,7 @@ type Message struct {
 	Name        string `json:"name"`
 	Data        []byte `json:"data"`
 	Error       string `json:"error"`
-	Date        string `json:"date"`
+	Date        uint64 `json:"date"`
 }
 
 var configData = Config{"", ""}

@@ -54,7 +54,7 @@ func check(fileName string) (bool, error) {
 
 	json.NewDecoder(conn).Decode(&data)
 
-	if bytes.Equal(data.Data, md5Local[:]) {
+	if bytes.Equal(data.Data, md5Local[:]) { // && data.Date <= date{
 		return true, nil
 	}
 	return false, nil
