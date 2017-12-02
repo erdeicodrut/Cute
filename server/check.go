@@ -42,7 +42,7 @@ func check(s string, conn net.Conn) {
 	answer := Message{
 		Interaction: "check",
 		Data:        md5Local[:], // arr is an array; arr[:] is the slice of all elements -- STACK OVERFLOW says it best
-		Date:        date
+		Date:        date,
 	}
 
 	json.NewEncoder(conn).Encode(answer)
