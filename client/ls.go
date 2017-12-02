@@ -8,7 +8,6 @@ import (
 	"os"
 )
 
-// ls comes form list, the ls unix command, equivalent of dir in windows cmd
 func ls(_ *cli.Context) {
 	conn, err := net.Dial("tcp", configData.IP+":"+configData.PORT)
 	if err != nil {
@@ -16,19 +15,18 @@ func ls(_ *cli.Context) {
 	}
 	defer conn.Close()
 
+	fmt.Println(lsFiles(conn))
+}
+
+func lsFiles(conn net.Conn) []string {
 	toSend := Message{
 		Interaction: "ls",
 	}
 
 	json.NewEncoder(conn).Encode(toSend)
 
-	var message Message
-	json.NewDecoder(conn).Decode(&message)
+	var fileArray []string
+	json.NewDecoder(conn).Decode(&fileArray)
 
-	if message.Error != "" {
-		fmt.Print(message.Error)
-		return
-	}
-
-	fmt.Print(string(message.Data))
+	return fileArray
 }

@@ -19,7 +19,10 @@ func pull(c *cli.Context) {
 	defer conn.Close()
 
 	name := c.Args()[0]
+	pullFile(conn, name)
+}
 
+func pullFile(conn net.Conn, name string) {
 	toSend := Message{
 		Interaction: "pull",
 		Name:        name,
@@ -64,6 +67,5 @@ func pull(c *cli.Context) {
 
 		fmt.Printf("Pulled file '%v'\n", message.Name)
 		json.NewEncoder(conn).Encode(Message{Interaction: "thx"})
-
 	}
 }

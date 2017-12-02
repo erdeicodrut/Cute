@@ -94,6 +94,7 @@ func main() {
 		folderWatcher.Start()
 
 		for folderWatcher.IsRunning() {
+			updateStorage()
 
 			select {
 
