@@ -2,8 +2,10 @@ package main
 
 import (
 	"bufio"
+	"database/sql"
 	"encoding/json"
 	"fmt"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/urfave/cli"
 	"net"
 	"os"
@@ -20,11 +22,23 @@ type Message struct {
 	Name        string `json:"name"`
 	Data        []byte `json:"data"`
 	Error       string `json:"error"`
+	Date        uint64 `json:"date"`
 }
 
 var configData = Config{"", ""}
 
+var dbC chan *sql.DB
+
 func main() {
+	dbC = make(chan *sql.DB, 1)
+	db, err := sql.Open("sqlite3", "database.db")
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer db.Close()
+
+	dbC <- db
+
 	app := cli.NewApp()
 
 	configFile, err := os.Open("config.json")

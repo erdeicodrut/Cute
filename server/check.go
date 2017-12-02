@@ -27,9 +27,22 @@ func check(s string, conn net.Conn) {
 
 	fmt.Println(md5Local)
 
+	db := <-dbC
+
+	rows, err := db.Query("SELECT Date FROM File WHERE Name = ?", s)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	var date uint64
+	for rows.Next() {
+		rows.Scan(&date)
+	}
+
 	answer := Message{
 		Interaction: "check",
 		Data:        md5Local[:], // arr is an array; arr[:] is the slice of all elements -- STACK OVERFLOW says it best
+		Date:        date
 	}
 
 	json.NewEncoder(conn).Encode(answer)
