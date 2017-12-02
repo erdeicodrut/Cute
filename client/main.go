@@ -4,11 +4,16 @@ import (
 	"encoding/json"
 	"github.com/urfave/cli"
 	"os"
+	"fmt"
+	"github.com/andreaskoch/go-fswatch"
+	"strings"
+	"path/filepath"
 )
 
 type Config struct {
-	IP   string `json:"ip"`
-	PORT string `json:"port"`
+	IP           string `json:"ip"`
+	PORT         string `json:"port"`
+	STORAGE_PATH string `json:"storage_path"`
 }
 
 type Message struct {
@@ -19,7 +24,7 @@ type Message struct {
 	Date        uint64 `json:"date"`
 }
 
-var configData = Config{"", ""}
+var configData Config
 
 func main() {
 	app := cli.NewApp()
@@ -72,6 +77,55 @@ func main() {
 			Usage:  "Removes a file on the server",
 			Action: rm,
 		},
+	}
+
+	app.Action = func(c *cli.Context) error {
+		skipDotFilesAndFolders := func(path string) bool {
+			return strings.HasPrefix(filepath.Base(path), ".")
+		}
+
+		folderWatcher := fswatch.NewFolderWatcher(
+			configData.STORAGE_PATH,
+			true,
+			skipDotFilesAndFolders,
+			2,
+		)
+
+		folderWatcher.Start()
+
+		for folderWatcher.IsRunning() {
+
+			select {
+
+			case changes := <-folderWatcher.ChangeDetails():
+
+				if len(changes.Moved()) != 0 {
+					for _, movedFile := range changes.Moved() {
+						rmFile(movedFile)
+					}
+				}
+
+				if len(changes.New()) != 0 {
+					for _, newFile := range changes.New() {
+						pushAll(newFile)
+					}
+				}
+
+				if len(changes.Modified()) != 0 {
+					for _, modifiedFile := range changes.Modified() {
+						pushAll(modifiedFile)
+					}
+				}
+
+				//fmt.Printf("%s\n", changes.String())
+				fmt.Printf("Moved: %#v\n", changes.Moved())
+				fmt.Printf("New: %#v\n", changes.New())
+				fmt.Printf("Modified: %#v\n\n", changes.Modified())
+
+			}
+		}
+
+		return nil
 	}
 
 	app.Run(os.Args)

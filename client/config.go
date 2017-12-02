@@ -29,10 +29,22 @@ func config(_ *cli.Context) {
 	fmt.Print("PORT: ")
 	PORT, _ := reader.ReadString('\n')
 
+	fmt.Print("STORAGE_PATH: ")
+	STORAGE_PATH, _ := reader.ReadString('\n')
+
 	IP = strings.Trim(IP, "\n"+" ")
 	PORT = strings.Trim(PORT, "\n"+" ")
+	STORAGE_PATH = strings.Trim(STORAGE_PATH, "\n"+" ")
 
-	configData = Config{IP, PORT}
+	// Append '/' at the end of path if there isn't one
+	if STORAGE_PATH[len(STORAGE_PATH)-1] != '/' {
+		STORAGE_PATH += "/"
+	}
+
+	// Create the directories
+	os.MkdirAll(STORAGE_PATH, 0755)
+
+	configData = Config{IP, PORT, STORAGE_PATH}
 
 	json.NewEncoder(file).Encode(configData)
 }
