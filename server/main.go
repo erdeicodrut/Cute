@@ -95,6 +95,8 @@ func handleConnection(conn net.Conn) {
 		ls(conn)
 	case "check":
 		check(message.Name, conn)
+	case "rm":
+		rm(message)
 	}
 }
 

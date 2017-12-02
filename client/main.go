@@ -66,6 +66,12 @@ func main() {
 			Usage:  "Lists all the files in the server",
 			Action: ls,
 		},
+
+		{
+			Name:   "rm",
+			Usage:  "Removes a file on the server",
+			Action: rm,
+		},
 	}
 
 	app.Run(os.Args)
